@@ -2,7 +2,7 @@ const express = require('express');
 const bodyParse = require('body-parser');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const { authenticateUser } = require('./Login');
+const { authenticateUser } = require('./Components/Login');
 
 const app = express()
 const port = process.env.PORT || 3000;
