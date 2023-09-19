@@ -1,26 +1,31 @@
 const db = require('./db_Connection');
-const crypto = require('crypto');
+const bcrypt = require('bcrypt');
+const LoginQuery = 'SELECT * FROM amsusers WHERE userName = ?';
 
-const LoginQuery = 'SELECT * FROM amsusers WHERE userName = ? AND userPassword = ?';
-const username = 'admin'
-const password = 'admin'
+async function authenticateUser(username, password) {
+  try {
+    // Fetch user information based on the username
+    const [user] = await db.promise().query(LoginQuery, [username]);
 
-function hashPassword(password){
-    const sha256 = crypto.createHash('sha256');
-    sha256.update(password);
-    return sha256.digest('hex')
+    if (!user || !user.length) {
+      console.log('User not found.');
+      return;
+    }
+
+    const hashedPasswordFromDB = user[0].userPassword;
+
+    // Compare the provided password with the hashed password from the database
+    const passwordMatch = await bcrypt.compare(password, hashedPasswordFromDB);
+
+    if (passwordMatch) {
+      console.log('Authentication successful.');
+      console.log('User details:', user[0]);
+    } else {
+      console.log('Authentication failed. Incorrect password.');
+    }
+  } catch (err) {
+    console.error('Error executing query:', err);
+  }
 }
 
-const hashedPassword = hashPassword(password);
-db.query(LoginQuery, [username, hashedPassword], (err, results) =>{
-    if (err) {
-        console.error('Error executing query:', err);
-        return;
-    }
-
-    if (results.length === 0){
-        console.log('No matching records found.');
-    } else{
-        console.log('Query results:', results)
-    }
-});
+authenticateUser(username, password);
