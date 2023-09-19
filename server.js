@@ -14,10 +14,8 @@ app.post('/Components/Login', async (req, res) => {
         const { username, password } = req.body;
         const authenticationResult = await authenticateUser(username, password);
         if (authenticationResult === 'Authentication successful.') {
-            // Authentication successful
             res.status(200).json({ message: 'Authentication successful.' });
         } else {
-            // Authentication failed or internal server error
             res.status(401).json({ message: authenticationResult });
         }
     } catch (error) {
