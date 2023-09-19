@@ -9,15 +9,23 @@ const port = process.env.PORT || 3000;
 
 app.use(bodyParse.json());
 
-app.post('/Components/Login', async (req, res) =>{
-    try{
-        const{ username, password } = req.body;
-        await authenticateUser(username, password);
-    }catch (error){
+app.post('/Components/Login', async (req, res) => {
+    try {
+        const { username, password } = req.body;
+        const authenticationResult = await authenticateUser(username, password);
+        if (authenticationResult === 'Authentication successful.') {
+            // Authentication successful
+            res.status(200).json({ message: 'Authentication successful.' });
+        } else {
+            // Authentication failed or internal server error
+            res.status(401).json({ message: authenticationResult });
+        }
+    } catch (error) {
         console.error(error);
-        res.status(500).json({error: 'Internal server error'});
+        res.status(500).json({ message: 'Internal server error.' });
     }
 });
+
 
 app.listen(port, () =>{
     console.log(`Server is running on port ${port}`);

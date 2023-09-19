@@ -17,20 +17,20 @@ async function authenticateUser(username, password) {
     const [user] = await db.promise().query(LoginQuery, [username]);
 
     if (!user || !user.length) {
-      console.log('User not found.');
-      return;
+      return 'Authentication failed. Incorrect username or password.';
     }
 
     const hashedPasswordFromDB = user[0].userPassword;
 
     // Compare the hashed provided password with the hashed password from the database
     if (hashedPassword === hashedPasswordFromDB) {
-      console.log('Authentication successful.');
+      return 'Authentication successful.';
     } else {
-      console.log('Authentication failed. Incorrect password.');
+      return 'Authentication failed. Incorrect username or password.';
     }
   } catch (err) {
     console.error('Error executing query:', err);
+    return 'Internal server error.';
   }
 }
 
