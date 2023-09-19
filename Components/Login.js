@@ -1,9 +1,18 @@
-const db = require('./db_Connection');
-const bcrypt = require('bcrypt');
+const db = require('../Components/db_Connection');
+const crypto = require('crypto');
 const LoginQuery = 'SELECT * FROM amsusers WHERE userName = ?';
+
+function hashPassword(password) {
+  const sha256 = crypto.createHash('sha256');
+  sha256.update(password);
+  const hashed = sha256.digest('hex');
+  return hashed.toUpperCase(); // Convert the hash to uppercase
+}
 
 async function authenticateUser(username, password) {
   try {
+    const hashedPassword = hashPassword(password); // Hash the provided password
+
     // Fetch user information based on the username
     const [user] = await db.promise().query(LoginQuery, [username]);
 
@@ -14,12 +23,9 @@ async function authenticateUser(username, password) {
 
     const hashedPasswordFromDB = user[0].userPassword;
 
-    // Compare the provided password with the hashed password from the database
-    const passwordMatch = await bcrypt.compare(password, hashedPasswordFromDB);
-
-    if (passwordMatch) {
+    // Compare the hashed provided password with the hashed password from the database
+    if (hashedPassword === hashedPasswordFromDB) {
       console.log('Authentication successful.');
-      console.log('User details:', user[0]);
     } else {
       console.log('Authentication failed. Incorrect password.');
     }
@@ -28,4 +34,6 @@ async function authenticateUser(username, password) {
   }
 }
 
-authenticateUser(username, password);
+module.exports = {
+  authenticateUser,
+};
