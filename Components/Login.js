@@ -1,4 +1,4 @@
-const db = require('../Components/db_Connection');
+const pool = require('../Components/db_Connection');
 const crypto = require('crypto');
 const LoginQuery = 'SELECT * FROM amsguests WHERE userName = ?';
 
@@ -14,7 +14,7 @@ async function authenticateUser(username, password) {
     const hashedPassword = hashPassword(password); // Hash the provided password
 
     // Fetch user information based on the username
-    const [user] = await db.promise().query(LoginQuery, [username]);
+    const [user] = await pool.execute(LoginQuery, [username]); // Use pool.execute()
 
     if (!user || !user.length) {
       return 'Authentication failed. Incorrect username or password.';
