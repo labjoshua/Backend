@@ -1,6 +1,6 @@
 const db = require('../Components/db_Connection');
 const crypto = require('crypto');
-const LoginQuery = 'SELECT * FROM amsusers WHERE userName = ?';
+const LoginQuery = 'SELECT * FROM amsguests WHERE userName = ?';
 
 function hashPassword(password) {
   const sha256 = crypto.createHash('sha256');
@@ -20,7 +20,7 @@ async function authenticateUser(username, password) {
       return 'Authentication failed. Incorrect username or password.';
     }
 
-    const hashedPasswordFromDB = user[0].userPassword;
+    const hashedPasswordFromDB = user[0].userPass;
 
     // Compare the hashed provided password with the hashed password from the database
     if (hashedPassword === hashedPasswordFromDB) {
