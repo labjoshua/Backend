@@ -60,7 +60,7 @@ app.post('/Components/Registration', async (req, res) => {
 });
 
 //Route for Reservation
-app.post('/Components/Reservation', async (req, res)=>{
+app.post('/Components/Reservation', authenticateToken, async (req, res)=>{
   try{
     const { guestID, roomID, reservationDateFrom, reservationDateTo , reservationStatus} = req.body;
     const Reservation = await ReserveGuest( guestID, roomID, reservationDateFrom, reservationDateTo, reservationStatus );
