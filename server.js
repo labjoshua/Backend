@@ -10,6 +10,8 @@ const port = process.env.PORT || 5000;
 
 app.use(bodyParser.json());
 
+//Implementaion of JWT Auth
+
 // Route for the login authentication
 app.post('/Components/Login', async (req, res) => {
   try {
