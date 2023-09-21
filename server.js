@@ -31,8 +31,9 @@ app.post('/Components/Login', async (req, res) => {
     const { username, password } = req.body;
     const authenticationResult = await authenticateUser(username, password);
     if (authenticationResult === 'Authentication successful.') {
-      const user = { username: username};
+      const user = { username: username };
       const accessToken = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET);
+      res.cookie('access_token', accessToken, { httpOnly: true });
       res.status(200).json({ message: 'Authentication successful.', accessToken: accessToken });
     } else {
       res.status(401).json({ message: authenticationResult }); // Return error as JSON
@@ -64,10 +65,10 @@ app.post('/Components/Reservation', authenticateToken, async (req, res)=>{
   try{
     const { guestID, roomID, reservationDateFrom, reservationDateTo , reservationStatus} = req.body;
     const Reservation = await ReserveGuest( guestID, roomID, reservationDateFrom, reservationDateTo, reservationStatus );
-    if (Reservation === ''){
-      res.status(200).json({ message: ''});
+    if (Reservation === 'Reservation successful'){
+      res.status(200).json({ message: 'Reservation successful'});
     } else{
-      res.status(401).json({ message: ''})
+      res.status(401).json({ message: 'Error inserting data'})
     }
   } catch (error){
     console.error(error);
