@@ -1,0 +1,10 @@
+POST http://localhost:5000/Components/Reservation
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFwaXVzciIsImlhdCI6MTY5NTI5MzQ3M30.OfUh2DiY6EgPddklOBs46q-pFLlUSR123dOME1okFMc
+Content-Type: application/json
+{
+    "guestID":"67",
+    "roomID":"1",
+    "reservationDateFrom":"2023-09-23",
+    "reservationDateTo":"2023-09-24",
+    "reservationStatus":"API"
+}

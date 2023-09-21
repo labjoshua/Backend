@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt');
@@ -10,7 +11,19 @@ const port = process.env.PORT || 5000;
 
 app.use(bodyParser.json());
 
-//Implementaion of JWT Auth
+
+//Middleware of authentication token
+
+function authenticateToken(req, res, next){
+  const authHeader = req.headers['authorization']
+  const token = authHeader && authHeader.split(' ')[1]
+  if (token === null) return res.sendStatus(401)
+  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) =>{
+if (err) return res.sendStatus(403)
+req.user = user
+next()
+})
+}
 
 // Route for the login authentication
 app.post('/Components/Login', async (req, res) => {
@@ -18,7 +31,9 @@ app.post('/Components/Login', async (req, res) => {
     const { username, password } = req.body;
     const authenticationResult = await authenticateUser(username, password);
     if (authenticationResult === 'Authentication successful.') {
-      res.status(200).json({ message: 'Authentication successful.' });
+      const user = { username: username};
+      const accessToken = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET);
+      res.status(200).json({ message: 'Authentication successful.', accessToken: accessToken });
     } else {
       res.status(401).json({ message: authenticationResult }); // Return error as JSON
     }
