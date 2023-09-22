@@ -76,9 +76,18 @@ app.post('/Components/Reservation', authenticateToken, async (req, res)=>{
   }
 })
 
+//Route for getting room informations
+app.get('./', async(req, res)=>{
+
+})
+
 //Route for Forgot password ======
 app.post('./', async(req, res)=>{
+  try{
+    const { email } = req.body
+  }catch{
 
+  }
 })
 
 //Route for Updating password
