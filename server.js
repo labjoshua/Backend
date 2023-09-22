@@ -6,6 +6,7 @@ const jwt = require('jsonwebtoken');
 const { authenticateUser } = require('./Components/Login');
 const { registerGuest } = require('./Components/Registration');
 const { ReserveGuest } = require('./Components/Reservation')
+const { ForgotPassword } = require('./Components/Forgotpassword')
 const app = express();
 const port = process.env.PORT || 5000;
 
@@ -82,9 +83,10 @@ app.get('./', async(req, res)=>{
 })
 
 //Route for Forgot password ======
-app.post('./', async(req, res)=>{
+app.post('./Components/forgotpassword', async(req, res)=>{
   try{
     const { email } = req.body
+    const forgot = await ForgotPassword()
   }catch{
 
   }
