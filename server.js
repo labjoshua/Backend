@@ -77,6 +77,14 @@ app.post('/Components/Reservation', authenticateToken, async (req, res)=>{
 })
 
 //Route for Forgot password ======
+app.post('./', async(req, res)=>{
+
+})
+
+//Route for Updating password
+app.post('./', async(req,res)=>{
+  
+})
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
