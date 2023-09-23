@@ -35,7 +35,8 @@ app.post('/Components/Login', async (req, res) => {
       const user = { username: username };
       const accessToken = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET);
       res.cookie('access_token', accessToken, { httpOnly: true });
-      res.status(200).json({ message: 'Authentication successful.', accessToken: accessToken });
+      res.cookie('username', user, { httpOnly: true});
+      res.status(200).json({ message: 'Authentication successful.', accessToken: accessToken, user: user });
     } else {
       res.status(401).json({ message: authenticationResult }); // Return error as JSON
     }
@@ -44,6 +45,15 @@ app.post('/Components/Login', async (req, res) => {
     res.status(500).json({ message: 'Internal server error.' }); // Return error as JSON
   }
 });
+
+//Route for Getting Room information and ID of user as well
+
+app.get('/Components/ReservationInfo', async (req, res) =>{
+  try{
+  }catch{
+
+  }
+})
 
 // Route for Guest Registration
 app.post('/Components/Registration', async (req, res) => {
@@ -79,7 +89,11 @@ app.post('/Components/Reservation', authenticateToken, async (req, res)=>{
 
 //Route for getting room informations
 app.get('./', async(req, res)=>{
+  try{
+    
+  }catch{
 
+  }
 })
 
 //Route for Forgot password ======
