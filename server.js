@@ -6,7 +6,8 @@ const jwt = require('jsonwebtoken');
 const { authenticateUser } = require('./Components/Login');
 const { registerGuest } = require('./Components/Registration');
 const { ReserveGuest } = require('./Components/Reservation')
-const { ForgotPassword } = require('./Components/Forgotpassword')
+const { ForgotPassword } = require('./Components/Forgotpassword');
+const { ReservationInfo } = require('./Components/ReservationInfo');
 const app = express();
 const port = process.env.PORT || 5000;
 
@@ -48,12 +49,20 @@ app.post('/Components/Login', async (req, res) => {
 
 //Route for Getting Room information and ID of user as well
 
-app.get('/Components/ReservationInfo', async (req, res) =>{
-  try{
-  }catch{
-
+app.get('/Components/ReservationInfo', authenticateToken, async (req, res) => {
+  try {
+    const roomData = await ReservationInfo(); // Correctly call the function
+    const roomInfo = roomData.map(room => ({
+      roomID: room.roomID,
+      roomName: room.roomName
+    }));
+    res.status(200).json(roomInfo);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal server error." });
   }
-})
+});
+
 
 // Route for Guest Registration
 app.post('/Components/Registration', async (req, res) => {
