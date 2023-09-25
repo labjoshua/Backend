@@ -8,6 +8,7 @@ const { registerGuest } = require('./Components/Registration');
 const { ReserveGuest } = require('./Components/Reservation')
 const { ForgotPassword } = require('./Components/Forgotpassword');
 const { ReservationInfo } = require('./Components/ReservationInfo');
+const { UpdateAcc } = require('./Components/UpdateInfo');
 const app = express();
 const port = process.env.PORT || 5000;
 
@@ -15,7 +16,7 @@ app.use(bodyParser.json());
 
 
 //Middleware of authentication token
-
+//{This is the scope of verifying the access token of client
 function authenticateToken(req, res, next){
   const authHeader = req.headers['authorization']
   const token = authHeader && authHeader.split(' ')[1]
@@ -26,6 +27,7 @@ req.user = user
 next()
 })
 }
+//}
 
 // Route for the login authentication
 app.post('/Components/Login', async (req, res) => {
@@ -80,6 +82,32 @@ app.post('/Components/Registration', async (req, res) => {
   }
 });
 
+//Route for Fetching account before updating
+app.get('/Components/FetchAccountInfo', async(req,res)=>{
+  try{
+    const {username} = req.body;
+  }catch{
+
+  }
+})
+
+
+//Route for UpdatingAccount
+app.patch('/Components/UpdateInfo', async (req,res)=>{
+  try{
+    const { guestName, guestContactInfo, guestEmail, EncodedDate, userName, userPass } = req.body;
+    const updateinfo = await UpdateAcc (guestName, guestContactInfo, guestEmail, EncodedDate, userName, userPass);
+    if (updateinfo === '') {
+      res.status(200).json({ message: ''})
+    }else{
+      res.status(401).json({message: ''})
+    }
+  }catch (error){
+    console.error(error);
+    res.status(500).json({message: ''})
+  }
+})
+
 //Route for Reservation
 app.post('/Components/Reservation', authenticateToken, async (req, res)=>{
   try{
@@ -93,15 +121,6 @@ app.post('/Components/Reservation', authenticateToken, async (req, res)=>{
   } catch (error){
     console.error(error);
     res.status(500).json({ message: 'Internal server error.'})
-  }
-})
-
-//Route for getting room informations
-app.get('./', async(req, res)=>{
-  try{
-    
-  }catch{
-
   }
 })
 
