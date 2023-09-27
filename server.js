@@ -3,16 +3,21 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const cookieParser = require('cookie-parser')
 const { authenticateUser } = require('./Components/Login');
 const { registerGuest } = require('./Components/Registration');
 const { ReserveGuest } = require('./Components/Reservation')
 const { ForgotPassword } = require('./Components/Forgotpassword');
 const { ReservationInfo } = require('./Components/ReservationInfo');
 const { UpdateAcc } = require('./Components/UpdateInfo');
+const { FetchAccountInfo } = require('./Components/FetchAccountInfo');
 const app = express();
+
+
 const port = process.env.PORT || 5000;
 
 app.use(bodyParser.json());
+app.use(cookieParser());
 
 
 //Middleware of authentication token
@@ -83,17 +88,39 @@ app.post('/Components/Registration', async (req, res) => {
 });
 
 //Route for Fetching account before updating
-app.get('/Components/FetchAccountInfo', async(req,res)=>{
-  try{
-    const {username} = req.body;
-  }catch{
+app.get('/Components/FetchAccountInfo', async (req, res) => {
+  try {
+    const username = req.cookies.username;
+    if (!username) {
+      return res.status(400).json({ error: "Username not found in cookies" });
+    }
+    const user = username.username
+    const queryResults = await FetchAccountInfo(user);
 
+    const userData = queryResults.map(usrInfo => ({
+      guestName: usrInfo.guestName,
+      guestContactInfo: usrInfo.guestContactInfo,
+      guestEmail: usrInfo.guestEmail,
+      userName: usrInfo.userName,
+      userPass: usrInfo.userPass,
+    }));
+
+    if (queryResults.length === 0) {
+      return res.status(404).json({ error: "No account information found" });
+    }
+    // Send the query results without metadata if status is 200
+    res.status(200).json(queryResults);
+    console.log(userData);
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).json({ error: 'An error occurred in the server' });
   }
-})
+});
+
 
 
 //Route for UpdatingAccount
-app.patch('/Components/UpdateInfo', async (req,res)=>{
+app.patch('/Components/UpdateInfo', authenticateToken, async (req,res)=>{
   try{
     const { guestName, guestContactInfo, guestEmail, EncodedDate, userName, userPass } = req.body;
     const updateinfo = await UpdateAcc (guestName, guestContactInfo, guestEmail, EncodedDate, userName, userPass);

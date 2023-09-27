@@ -1,11 +1,11 @@
 const pool = require('./db_Connection');
 
-exports.FetchAccountInfo = async () => {
+exports.FetchAccountInfo = async (username) => {
     try{
         const query = `SELECT guestName, guestContactInfo, guestEmail, userName, userPass
         FROM amsguests
         WHERE userName =?`
-        const queryResults = await pool.query(query);
+        const [queryResults] = await pool.query(query, [username]);
         return queryResults;
     } catch (error){
         console.error("Error:", error);
