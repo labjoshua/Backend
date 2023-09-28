@@ -7,19 +7,18 @@ function hashPassword(password) {
     return sha256.digest('hex');
 }
 
-exports.registerGuest = async (guestName, guestContactInfo, guestEmail, EncodedDate, userName, userPass) => {
+exports.registerGuest = async (guestName, guestContactInfo, guestEmail, userName, userPass) => {
     try {
         // Hash the userPass using SHA-256 and convert it to uppercase
         const hashedUserPass = hashPassword(userPass).toUpperCase();
 
-        const sql = `INSERT INTO amsguests (guestName, guestContactInfo, guestEmail, EncodedDate, userName, userPass)
-        VALUES (?, ?, ?, ?, ?, ?)`;
+        const sql = `INSERT INTO amsguests (guestName, guestContactInfo, guestEmail, userName, userPass)
+        VALUES (?, ?, ?, ?, ?)`;
 
         const values = [
             guestName,
             guestContactInfo,
             guestEmail,
-            EncodedDate,
             userName,
             hashedUserPass, // Use the hashed password here
         ];

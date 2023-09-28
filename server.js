@@ -21,7 +21,6 @@ app.use(cookieParser());
 
 
 //Middleware of authentication token
-//{This is the scope of verifying the access token of client
 function authenticateToken(req, res, next){
   const authHeader = req.headers['authorization']
   const token = authHeader && authHeader.split(' ')[1]
@@ -32,7 +31,6 @@ req.user = user
 next()
 })
 }
-//}
 
 // Route for the login authentication
 app.post('/Components/Login', async (req, res) => {
@@ -56,7 +54,7 @@ app.post('/Components/Login', async (req, res) => {
 
 //Route for Getting Room information and ID of user as well
 
-app.get('/Components/ReservationInfo', authenticateToken, async (req, res) => {
+app.get('/Components/RoomInfo', authenticateToken, async (req, res) => {
   try {
     const roomData = await ReservationInfo(); // Correctly call the function
     const roomInfo = roomData.map(room => ({
@@ -74,8 +72,8 @@ app.get('/Components/ReservationInfo', authenticateToken, async (req, res) => {
 // Route for Guest Registration
 app.post('/Components/Registration', async (req, res) => {
   try {
-    const { guestName, guestContactInfo, guestEmail, EncodedDate, userName, userPass } = req.body;
-    const registration = await registerGuest(guestName, guestContactInfo, guestEmail, EncodedDate, userName, userPass);
+    const { guestName, guestContactInfo, guestEmail, userName, userPass } = req.body;
+    const registration = await registerGuest(guestName, guestContactInfo, guestEmail, userName, userPass);
     if (registration === 'Registration successful') {
       res.status(200).json({ message: 'Registration successful' });
     }else {
@@ -88,7 +86,7 @@ app.post('/Components/Registration', async (req, res) => {
 });
 
 //Route for Fetching account before updating
-app.get('/Components/FetchAccountInfo', async (req, res) => {
+app.get('/Components/FetchAccountInfo', authenticateToken, async (req, res) => {
   try {
     const username = req.cookies.username;
     if (!username) {
@@ -122,16 +120,20 @@ app.get('/Components/FetchAccountInfo', async (req, res) => {
 //Route for UpdatingAccount
 app.patch('/Components/UpdateInfo', authenticateToken, async (req,res)=>{
   try{
-    const { guestName, guestContactInfo, guestEmail, EncodedDate, userName, userPass } = req.body;
+    //This fetch the username from the cookie
+    const username = req.cookies.username;
+    const user = username.username
+    //Here will inputing data to the function
+    const { guestName, guestContactInfo, guestEmail, userName, userPass } = req.body;
     const updateinfo = await UpdateAcc (guestName, guestContactInfo, guestEmail, EncodedDate, userName, userPass);
-    if (updateinfo === '') {
-      res.status(200).json({ message: ''})
+    if (updateinfo === 'User data updated successfully') {
+      res.status(200).json({ message: updateinfo})
     }else{
-      res.status(401).json({message: ''})
+      res.status(401).json({message: 'Error updating user data'})
     }
   }catch (error){
     console.error(error);
-    res.status(500).json({message: ''})
+    res.status(500).json({message: 'Internal server error.'})
   }
 })
 
