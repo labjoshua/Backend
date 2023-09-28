@@ -8,9 +8,12 @@ const { authenticateUser } = require('./Components/Login');
 const { registerGuest } = require('./Components/Registration');
 const { ReserveGuest } = require('./Components/Reservation')
 const { ForgotPassword } = require('./Components/Forgotpassword');
+const { sendMail } = require('./Components/Forgotpassword');
 const { ReservationInfo } = require('./Components/ReservationInfo');
 const { UpdateAcc } = require('./Components/UpdateInfo');
 const { FetchAccountInfo } = require('./Components/FetchAccountInfo');
+const cors = require('cors')
+
 const app = express();
 
 
@@ -19,6 +22,12 @@ const port = process.env.PORT || 5000;
 app.use(bodyParser.json());
 app.use(cookieParser());
 
+const corsOptions = {
+  origin: 'http://localhost:3000',
+  credentials: true,
+};
+
+app.use(cors(corsOptions))
 
 //Middleware of authentication token
 function authenticateToken(req, res, next){
@@ -154,14 +163,26 @@ app.post('/Components/Reservation', authenticateToken, async (req, res)=>{
 })
 
 //Route for Forgot password / Verifying email ======>
-app.post('./Components/forgotpassword', async(req, res)=>{
-  try{
-    const { email } = req.body
-    const forgot = await ForgotPassword()
-  }catch{
-    
+app.post('/Components/forgotpassword', async (req, res) => {
+  try {
+    const { email } = req.body;
+    const forgot = await ForgotPassword(email);
+
+    if (forgot.length === 0) {
+      return res.status(404).json({ error: "Email not found" });
+    }
+
+    const userEmail = forgot[0].guestEmail;
+    res.cookie('email', userEmail, { httpOnly: true });
+
+    await sendMail(email, otp);
+    res.status(200).json(forgot);
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
-})
+});
+
 
 //Route for Updating password
 app.post('./', async(req,res)=>{
