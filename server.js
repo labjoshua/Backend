@@ -153,13 +153,13 @@ app.post('/Components/Reservation', authenticateToken, async (req, res)=>{
   }
 })
 
-//Route for Forgot password ======
+//Route for Forgot password / Verifying email ======>
 app.post('./Components/forgotpassword', async(req, res)=>{
   try{
     const { email } = req.body
     const forgot = await ForgotPassword()
   }catch{
-
+    
   }
 })
 
