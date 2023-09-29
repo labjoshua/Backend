@@ -17,22 +17,25 @@ async function authenticateUser(username, password) {
     const [user] = await pool.execute(LoginQuery, [username]); // Use pool.execute()
 
     if (!user || !user.length) {
-      return 'Authentication failed. Incorrect username or password.';
+      return { success: false, message: 'Authentication failed. Incorrect username or password.' };
     }
 
     const hashedPasswordFromDB = user[0].userPass;
+    const userID = user[0].guestID
+
 
     // Compare the hashed provided password with the hashed password from the database
     if (hashedPassword === hashedPasswordFromDB) {
-      return 'Authentication successful.';
+      return { success: true, userId: userID };
     } else {
-      return 'Authentication failed. Incorrect username or password.';
+      return { success: false, message: 'Authentication failed. Incorrect username or password.' };
     }
   } catch (err) {
     console.error('Error executing query:', err);
-    return 'Internal server error.';
+    return { success: false, message: 'Internal server error.' };
   }
 }
+
 
 module.exports = {
   authenticateUser,

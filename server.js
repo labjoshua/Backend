@@ -10,7 +10,7 @@ const { ReserveGuest } = require('./Components/Reservation')
 const { ForgotPassword } = require('./Components/Forgotpassword');
 const { sendMail } = require('./Components/Forgotpassword');
 const { ReservationInfo } = require('./Components/ReservationInfo');
-const { UpdateAcc } = require('./Components/UpdateInfo');
+const { updateUserData } = require('./Components/UpdateInfo');
 const { FetchAccountInfo } = require('./Components/FetchAccountInfo');
 const cors = require('cors')
 
@@ -29,6 +29,7 @@ const corsOptions = {
 
 app.use(cors(corsOptions))
 
+
 //Middleware of authentication token
 function authenticateToken(req, res, next){
   const authHeader = req.headers['authorization']
@@ -41,19 +42,22 @@ next()
 })
 }
 
-// Route for the login authentication
+//Implemented na sa FrontEnd
 app.post('/Components/Login', async (req, res) => {
   try {
     const { username, password } = req.body;
     const authenticationResult = await authenticateUser(username, password);
-    if (authenticationResult === 'Authentication successful.') {
-      const user = { username: username };
+    if (authenticationResult.success) {
+      const uId  = authenticationResult.userId;
+      const user =  username;
       const accessToken = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET);
       res.cookie('access_token', accessToken, { httpOnly: true });
-      res.cookie('username', user, { httpOnly: true});
-      res.status(200).json({ message: 'Authentication successful.', accessToken: accessToken, user: user });
+      res.cookie('userID', uId, { httpOnly: true });
+      res.cookie('username', user , { httpOnly: true })
+      res.status(200).json({ message: 'Authentication successful.', accessToken, user, uId });
+      console.log(uId)
     } else {
-      res.status(401).json({ message: authenticationResult }); // Return error as JSON
+      res.status(401).json({ message: authenticationResult.message }); // Return error as JSON
     }
   } catch (error) {
     console.error(error);
@@ -61,8 +65,8 @@ app.post('/Components/Login', async (req, res) => {
   }
 });
 
-//Route for Getting Room information and ID of user as well
 
+//Implemented na sa FrontEnd
 app.get('/Components/RoomInfo', authenticateToken, async (req, res) => {
   try {
     const roomData = await ReservationInfo(); // Correctly call the function
@@ -78,7 +82,7 @@ app.get('/Components/RoomInfo', authenticateToken, async (req, res) => {
 });
 
 
-// Route for Guest Registration
+//Implemented na sa FrontEnd
 app.post('/Components/Registration', async (req, res) => {
   try {
     const { guestName, guestContactInfo, guestEmail, userName, userPass } = req.body;
@@ -94,16 +98,18 @@ app.post('/Components/Registration', async (req, res) => {
   }
 });
 
-//Route for Fetching account before updating
+
+//Implemented na sa FrontEnd
 app.get('/Components/FetchAccountInfo', authenticateToken, async (req, res) => {
   try {
-    const username = req.cookies.username;
-    if (!username) {
-      return res.status(400).json({ error: "Username not found in cookies" });
-    }
-    const user = username.username
-    const queryResults = await FetchAccountInfo(user);
+    const { usrID } = req.query; // Retrieve usrID from query parameters
 
+    if (!usrID) {
+      // If usrID is missing or empty, respond with a bad request error
+      return res.status(400).json({ error: 'Bad Request: usrID parameter is missing.' });
+    }
+
+    const queryResults = await FetchAccountInfo(usrID);
     const userData = queryResults.map(usrInfo => ({
       guestName: usrInfo.guestName,
       guestContactInfo: usrInfo.guestContactInfo,
@@ -111,13 +117,7 @@ app.get('/Components/FetchAccountInfo', authenticateToken, async (req, res) => {
       userName: usrInfo.userName,
       userPass: usrInfo.userPass,
     }));
-
-    if (queryResults.length === 0) {
-      return res.status(404).json({ error: "No account information found" });
-    }
-    // Send the query results without metadata if status is 200
-    res.status(200).json(queryResults);
-    console.log(userData);
+    res.status(200).json(userData);
   } catch (error) {
     console.error("Error:", error);
     res.status(500).json({ error: 'An error occurred in the server' });
@@ -125,16 +125,12 @@ app.get('/Components/FetchAccountInfo', authenticateToken, async (req, res) => {
 });
 
 
-
-//Route for UpdatingAccount
+//Implemented na sa FrontEnd
 app.patch('/Components/UpdateInfo', authenticateToken, async (req,res)=>{
+  console.log(req.body)
   try{
-    //This fetch the username from the cookie
-    const username = req.cookies.username;
-    const user = username.username
-    //Here will inputing data to the function
-    const { guestName, guestContactInfo, guestEmail, userName, userPass } = req.body;
-    const updateinfo = await UpdateAcc (guestName, guestContactInfo, guestEmail, EncodedDate, userName, userPass);
+    const { guestID, guestName, guestContactInfo, guestEmail, userName, userPass } = req.body;
+    const updateinfo = await updateUserData(guestID, guestName, guestContactInfo, guestEmail, userName, userPass);
     if (updateinfo === 'User data updated successfully') {
       res.status(200).json({ message: updateinfo})
     }else{
@@ -146,9 +142,11 @@ app.patch('/Components/UpdateInfo', authenticateToken, async (req,res)=>{
   }
 })
 
-//Route for Reservation
+
+//Implemented na sa FrontEnd
 app.post('/Components/Reservation', authenticateToken, async (req, res)=>{
   try{
+    console.log(req.body)
     const { guestID, roomID, reservationDateFrom, reservationDateTo , reservationStatus} = req.body;
     const Reservation = await ReserveGuest( guestID, roomID, reservationDateFrom, reservationDateTo, reservationStatus );
     if (Reservation === 'Reservation successful'){
