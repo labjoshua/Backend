@@ -51,11 +51,17 @@ app.post('/Components/Login', async (req, res) => {
       const uId  = authenticationResult.userId;
       const user =  username;
       const accessToken = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET);
-      res.cookie('access_token', accessToken, { httpOnly: true });
-      res.cookie('userID', uId, { httpOnly: true });
-      res.cookie('username', user , { httpOnly: true })
-      res.status(200).json({ message: 'Authentication successful.', accessToken, user, uId });
-      console.log(uId)
+      const expirationTime = new Date(Date.now() + 10 * 1000);
+      res.cookie('access_token', accessToken, { httpOnly: true, expires: expirationTime });
+      res.cookie('userID', uId, { httpOnly: true, expires: expirationTime });
+      res.cookie('username', user , { httpOnly: true, expires: expirationTime })
+      res.status(200).json({ 
+        message: 'Authentication successful.', 
+        accessToken, 
+        user, 
+        uId,
+      expiresAt:expirationTime.getTime(), });
+      console.log(res)
     } else {
       res.status(401).json({ message: authenticationResult.message }); // Return error as JSON
     }
@@ -186,6 +192,18 @@ app.post('/Components/forgotpassword', async (req, res) => {
 app.post('./', async(req,res)=>{
   
 })
+
+//Implemented sa Frontend
+app.post('/logout', authenticateToken, (req, res) => {
+  // Clear cookies
+  res.clearCookie('access_token');
+  res.clearCookie('userID');
+  res.clearCookie('username');
+  
+  // Send a response indicating successful logout
+  res.status(200).json({ message: 'Logout successful' });
+});
+
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
