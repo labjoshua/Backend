@@ -8,7 +8,7 @@ const { authenticateUser } = require('./Components/Login');
 const { registerGuest } = require('./Components/Registration');
 const { ReserveGuest } = require('./Components/Reservation')
 const { ForgotPassword } = require('./Components/Forgotpassword');
-const { sendMail } = require('./Components/Forgotpassword');
+const { generateRandomOTP } = require('./Components/Forgotpassword');
 const { ReservationInfo } = require('./Components/ReservationInfo');
 const { updateUserData } = require('./Components/UpdateInfo');
 const { FetchAccountInfo } = require('./Components/FetchAccountInfo');
@@ -61,7 +61,6 @@ app.post('/Components/Login', async (req, res) => {
         user, 
         uId,
       expiresAt:expirationTime.getTime(), });
-      console.log(res)
     } else {
       res.status(401).json({ message: authenticationResult.message }); // Return error as JSON
     }
@@ -171,21 +170,17 @@ app.post('/Components/forgotpassword', async (req, res) => {
   try {
     const { email } = req.body;
     const forgot = await ForgotPassword(email);
-
     if (forgot.length === 0) {
       return res.status(404).json({ error: "Email not found" });
     }
-
-    const userEmail = forgot[0].guestEmail;
-    res.cookie('email', userEmail, { httpOnly: true });
-
-    await sendMail(email, otp);
-    res.status(200).json(forgot);
+    res.status(200).json({ message: "Email found" });
+    const showOtp = generateRandomOTP(6)
   } catch (error) {
     console.error("Error:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });
+
 
 
 //Route for Updating password
