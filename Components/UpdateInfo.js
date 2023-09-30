@@ -7,30 +7,18 @@ function hashPassword(password) {
   return sha256.digest('hex').toUpperCase();
 }
 
-exports.updateUserData = async (guestID, guestName, guestContactInfo, guestEmail, userName, userPass) => {
+exports.updateUserData = async ( userPass, guestID ) => {
   try {
     // Hash the new password using SHA-256 and convert it to uppercase
     if (userPass) {
       userPass = await hashPassword(userPass);
     }
 
-    const setStatements = [
-      'guestName = ?',
-      'guestContactInfo = ?',
-      'guestEmail = ?',
-      'userName = ?',
-      'userPass = ?'
-    ].join(', ');
-
     const sql = `UPDATE amsguests
-                SET ${setStatements}
+                SET userPass = ?
                 WHERE guestID = ?`;
 
     const updateValues = [
-      guestName,
-      guestContactInfo,
-      guestEmail,
-      userName,
       userPass,
       guestID
     ];

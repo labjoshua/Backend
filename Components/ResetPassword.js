@@ -36,14 +36,16 @@ oAuth2Client.setCredentials({ refresh_token: REFRESH_TOKEN });
       const result = await transport.sendMail(mailOptions);
       return result;
     } catch (error) {
-      
       console.error("Error sending email:", error);
-      throw error;
+      // Handle different types of errors and respond with appropriate status codes
+      if (error.responseCode === 535) {
+        // Authentication error, usually incorrect credentials
+        return { error: "Authentication error", status: 401 };
+      } else {
+        // Other types of errors, respond with a generic server error status code
+        return { error: "Internal server error", status: 500 };
+      }
     }
   }
   
-  const email = 'joshuadevillapapa@gmail.com'
-  const otp = '012345'
-  sendMail(email, otp)
-  .then(result => console.log('Email sent...', result))
-  .catch((error) => console.log(error.message))
+module.exports = { sendMail }

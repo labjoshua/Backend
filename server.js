@@ -7,10 +7,10 @@ const cookieParser = require('cookie-parser')
 const { authenticateUser } = require('./Components/Login');
 const { registerGuest } = require('./Components/Registration');
 const { ReserveGuest } = require('./Components/Reservation')
-const { ForgotPassword } = require('./Components/Forgotpassword');
-const { generateRandomOTP } = require('./Components/Forgotpassword');
+const { ForgotPassword, generateRandomOTP, VerifyOTP } = require('./Components/Forgotpassword');
 const { ReservationInfo } = require('./Components/ReservationInfo');
 const { updateUserData } = require('./Components/UpdateInfo');
+const { sendMail } = require('./Components/ResetPassword')
 const { FetchAccountInfo } = require('./Components/FetchAccountInfo');
 const cors = require('cors')
 
@@ -165,7 +165,7 @@ app.post('/Components/Reservation', authenticateToken, async (req, res)=>{
   }
 })
 
-//Route for Forgot password / Verifying email ======>
+//Implemented na sa FrontEnd
 app.post('/Components/forgotpassword', async (req, res) => {
   try {
     const { email } = req.body;
@@ -173,19 +173,51 @@ app.post('/Components/forgotpassword', async (req, res) => {
     if (forgot.length === 0) {
       return res.status(404).json({ error: "Email not found" });
     }
-    res.status(200).json({ message: "Email found" });
+    const UID = forgot.userID
     const showOtp = generateRandomOTP(6)
+    console.log(showOtp)
+    const emailResult = sendMail(email, showOtp)
+    if (emailResult.error){
+      return res.status(emailResult.status).json({ error: emailResult.error});
+    }else{
+      res.cookie('userID', UID, {httpOnly : true})
+      res.status(200).json({ message: 'OTP sent to the email', userID : UID})
+    }
   } catch (error) {
     console.error("Error:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });
 
+//Implemented na sa FrontEnd
+app.post('/Components/verifying-OTP', async(req, res)=>{
+  try {
+    const { otp } = req.body
+    const VerifyOTPs = await VerifyOTP(otp)
+    if (VerifyOTPs.success){
+      res.status(200).json({ message : 'Authentication successful'})
+    } else{
+      return res.status(400).json ({ error: VerifyOTPs.message});
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Internal server error.' });
+  }
+})
 
-
-//Route for Updating password
-app.post('./', async(req,res)=>{
-  
+app.patch('/Components/UpdatePassword', async(req, res)=>{
+  try{
+    const { userPass, guestID } = req.body;
+    const updateinfo = await updateUserData( userPass, guestID );
+    if (updateinfo === 'User data updated successfully') {
+      res.status(200).json({ message: updateinfo})
+    }else{
+      res.status(401).json({message: 'Error updating user data'})
+    }
+  }catch (error){
+    console.error(error);
+    res.status(500).json({message: 'Internal server error.'})
+  }
 })
 
 //Implemented sa Frontend
