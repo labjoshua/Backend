@@ -205,6 +205,7 @@ app.post('/Components/verifying-OTP', async(req, res)=>{
   }
 })
 
+//Implemented sa Frontend
 app.patch('/Components/UpdatePassword', async(req, res)=>{
   try{
     const { userPass, guestID } = req.body;
