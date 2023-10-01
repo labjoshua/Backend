@@ -7,7 +7,7 @@ function hashPassword(password) {
   return sha256.digest('hex').toUpperCase();
 }
 
-exports.updateUserData = async ( userPass, guestID ) => {
+exports.updateUserPass = async ( userPass, guestID ) => {
   try {
     // Hash the new password using SHA-256 and convert it to uppercase
     if (userPass) {

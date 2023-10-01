@@ -12,6 +12,7 @@ const { ReservationInfo } = require('./Components/ReservationInfo');
 const { updateUserData } = require('./Components/UpdateInfo');
 const { sendMail } = require('./Components/ResetPassword')
 const { FetchAccountInfo } = require('./Components/FetchAccountInfo');
+const { updateUserPass } = require('./Components/UpdatePassword')
 const cors = require('cors')
 
 const app = express();
@@ -119,8 +120,7 @@ app.get('/Components/FetchAccountInfo', authenticateToken, async (req, res) => {
       guestName: usrInfo.guestName,
       guestContactInfo: usrInfo.guestContactInfo,
       guestEmail: usrInfo.guestEmail,
-      userName: usrInfo.userName,
-      userPass: usrInfo.userPass,
+      userName: usrInfo.userName
     }));
     res.status(200).json(userData);
   } catch (error) {
@@ -209,7 +209,7 @@ app.post('/Components/verifying-OTP', async(req, res)=>{
 app.patch('/Components/UpdatePassword', async(req, res)=>{
   try{
     const { userPass, guestID } = req.body;
-    const updateinfo = await updateUserData( userPass, guestID );
+    const updateinfo = await updateUserPass( userPass, guestID );
     if (updateinfo === 'User data updated successfully') {
       res.status(200).json({ message: updateinfo})
     }else{

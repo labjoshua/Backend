@@ -2,7 +2,7 @@ const pool = require('./db_Connection');
 
 exports.FetchAccountInfo = async (usrID) => {
     try {
-        const query = `SELECT guestName, guestContactInfo, guestEmail, userName, userPass
+        const query = `SELECT guestName, guestContactInfo, guestEmail, userName
         FROM amsguests
         WHERE guestID = ?`;
         const [queryResults] = await pool.query(query, [usrID]);
