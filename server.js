@@ -52,7 +52,8 @@ app.post('/Components/Login', async (req, res) => {
       const uId  = authenticationResult.userId;
       const user =  username;
       const accessToken = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET);
-      const expirationTime = new Date(Date.now() + 10 * 1000);
+      const currentTime = Date.now();
+      const expirationTime = new Date(currentTime + 600000);
       res.cookie('access_token', accessToken, { httpOnly: true, expires: expirationTime });
       res.cookie('userID', uId, { httpOnly: true, expires: expirationTime });
       res.cookie('username', user , { httpOnly: true, expires: expirationTime })
@@ -181,7 +182,7 @@ app.post('/Components/forgotpassword', async (req, res) => {
       return res.status(emailResult.status).json({ error: emailResult.error});
     }else{
       res.cookie('userID', UID, {httpOnly : true})
-      res.status(200).json({ message: 'OTP sent to the email', userID : UID})
+      res.status(200).json({ message: 'OTP sent to the email', UID})
     }
   } catch (error) {
     console.error("Error:", error);
