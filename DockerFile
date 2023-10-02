@@ -1,0 +1,17 @@
+# Use an official Node.js runtime as a parent image
+FROM node:latest
+
+# Set the working directory in the container
+WORKDIR ./
+
+# Copy all files from the host machine to the container
+COPY . .
+
+# Install the application dependencies
+RUN npm install
+
+# Expose the port your application will run on
+EXPOSE 5000
+
+# Command to run your application
+CMD ["node", "server.js"]
